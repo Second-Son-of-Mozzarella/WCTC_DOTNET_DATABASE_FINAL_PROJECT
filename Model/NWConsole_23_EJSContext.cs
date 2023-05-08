@@ -42,6 +42,34 @@ namespace EJS_DOTNET_M12_D1.Model
         }
 
 
+        public void DeleteCatagory(Category category)
+        {
+            
+            // category.Products.Clear();
+            this.Categories.Remove(category);
+        }
+
+        public void DeleteProduct(Product product)
+        {
+            // product.OrderDetails.Clear();
+            this.Products.Remove(product);
+        }
+
+        public void EditCategroy(Category updatedCategory){
+            Category category = this.Categories.Find(updatedCategory.CategoryId);
+            category.CategoryName = updatedCategory.CategoryName;
+            category.Description = updatedCategory.Description;
+        }
+
+        public void EditProduct(Product updatedProduct){
+            Product product = this.Products.Find(updatedProduct.CategoryId);
+            product.ProductName = updatedProduct.ProductName;
+            product.Discontinued = updatedProduct.Discontinued;
+            product.QuantityPerUnit = updatedProduct.QuantityPerUnit;
+            product.UnitPrice = updatedProduct.UnitPrice;
+        }
+
+
         public void SaveDatabase(){this.SaveChanges();}
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

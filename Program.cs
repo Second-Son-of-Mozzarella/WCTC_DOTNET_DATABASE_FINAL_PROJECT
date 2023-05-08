@@ -94,32 +94,56 @@ try
                     break;
 
                 case 2: // add, delete or edit part of the categorys table
-                Console.Clear();
-                centeredText("How would you like to modify Categories");
-                Console.WriteLine("\n\t [1] Add Categories \n\t [2] Delete Category and related products \n\t [3] Edit Categories");
-                switch(Console.ReadLine())
-                {
-                    case "1":
-                        Category newCategory = addCategoryValidation(db, logger);
-                        if(newCategory != null)
-                        {
-                           db.AddCategory(newCategory);
-                           logger.Info("Category added - {name}", newCategory.CategoryName);
-                        }
+                    Console.Clear();
+                    centeredText("How would you like to modify Categories");
+                    Console.WriteLine("\n\t [1] Add Categories \n\t [2] Delete Category and related products \n\t [3] Edit Categories");
+                    switch (Console.ReadLine())
+                    {
+                        case "1":
+                            Category newCategory = addCategoryValidation(db, logger);
+                            if (newCategory != null)
+                            {
+                                db.AddCategory(newCategory);
+                                logger.Info("Category added - {name}", newCategory.CategoryName);
+                            }
 
 
-                    break;
+                            break;
 
-                    case "2":
+                        case "2":
+                            Console.Clear();
+                            centeredText("Choose a category to delete");
+                            var category = getCategory(db, logger);
+                            if (category != null)
+                            {
 
-                    break;
-
-                    case "3":
-
-                    break;
+                                db.DeleteCatagory(category);
+                                logger.Info($"Catagory ID: {category.CategoryId}  Name: {category.CategoryName} along with all related products has been deleted");
 
 
-                }
+                            }
+
+                            break;
+
+                        case "3":
+
+                            Console.WriteLine("Choose a Category to edit");
+                            var EditCategroy = getCategory(db, logger);
+                            if (EditCategroy != null)
+                            {
+                                Category updatedCategory = addCategoryValidation(db, logger);
+                                if (updatedCategory != null)
+                                {
+                                    updatedCategory.CategoryId = EditCategroy.CategoryId;
+                                    db.EditCategroy(updatedCategory);
+                                    logger.Info($"Category ID: {EditCategroy.CategoryId} has been updated");
+                                }
+                            }
+
+                            break;
+
+
+                    }
 
 
 
@@ -133,21 +157,83 @@ try
 
                 case 3:  // just a display all 
 
+                    Console.Clear();
+                    Console.WriteLine("Would you like to see: \n\t[1] all products \n\t[2] Active products \n\t[3] Inactive products");
                     var Q3A = db.Categories.Include("Products").OrderBy(p => p.CategoryId);
-                    bufferArea(200);
-                    foreach (var item in Q3A)
+                    switch (Console.ReadLine())
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        centeredText($"{item.CategoryName}");
-                        centeredText($"-----------------------------------------------------------------------------------------------------------");
-                        Console.ForegroundColor = ConsoleColor.White;
-                        foreach (Product p in item.Products)
-                        {
-                            Console.WriteLine($"\t{p.ProductName}");
-                        }
-                        Console.WriteLine();
+                        case "1":
+
+                            bufferArea(200);
+                            foreach (var item in Q3A)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                centeredText($"{item.CategoryName}");
+                                centeredText($"-----------------------------------------------------------------------------------------------------------");
+                                Console.ForegroundColor = ConsoleColor.White;
+                                foreach (Product p in item.Products)
+                                {
+                                    Console.WriteLine($"\t{p.ProductName}");
+                                }
+                                Console.WriteLine();
+
+                            }
+
+
+                            break;
+
+
+                        case "2":
+
+
+                            bufferArea(200);
+                            foreach (var item in Q3A)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                centeredText($"{item.CategoryName}");
+                                centeredText($"-----------------------------------------------------------------------------------------------------------");
+                                Console.ForegroundColor = ConsoleColor.White;
+                                foreach (Product p in item.Products.Where(p => p.Discontinued == false))
+                                {
+                                    Console.WriteLine($"\t{p.ProductName}");
+                                }
+                                Console.WriteLine();
+
+                            }
+
+
+                            break;
+
+                        case "3":
+
+                            bufferArea(200);
+                            foreach (var item in Q3A)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                centeredText($"{item.CategoryName}");
+                                centeredText($"-----------------------------------------------------------------------------------------------------------");
+                                Console.ForegroundColor = ConsoleColor.White;
+                                foreach (Product p in item.Products.Where(p => p.Discontinued == true))
+                                {
+                                    Console.WriteLine($"\t{p.ProductName}");
+                                }
+                                Console.WriteLine();
+
+                            }
+
+
+                            break;
+
+
+                        default:
+
+                            logger.Error("Invalid input please select 1 2 or 3");
+
+                            break;
 
                     }
+
+
                     keyToContinue();
 
 
@@ -157,7 +243,7 @@ try
 
 
                     Console.Clear();
-                    
+
                     var Q4B1 = db.Categories.Include("Products").OrderBy(p => p.CategoryId);
                     bufferArea(500);
                     foreach (var item in Q4B1)
@@ -203,7 +289,7 @@ try
                 case 5: // add, delete or edit part of the products table
 
 
-                break;
+                    break;
 
 
                 case 6:
@@ -212,7 +298,7 @@ try
 
                     logger.Info("Database saved");
 
-                break;
+                    break;
 
             }
         }
@@ -350,7 +436,7 @@ void keyToContinue()
 void bufferArea(int bufferAmount)
 {
 
-    for(int i = 0; i > bufferAmount; i++)
+    for (int i = 0; i > bufferAmount; i++)
     {
         Console.WriteLine("\n");
     }
@@ -359,32 +445,33 @@ void bufferArea(int bufferAmount)
 
 void colourRed()
 {
-   Console.ForegroundColor = ConsoleColor.Red;  
+    Console.ForegroundColor = ConsoleColor.Red;
 }
 void colourWhite()
 {
-   Console.ForegroundColor = ConsoleColor.White;  
+    Console.ForegroundColor = ConsoleColor.White;
 }
 
 
 // Methods for function 
-static Category addCategoryValidation(NWConsoleContext db, Logger logger){
+static Category addCategoryValidation(NWConsoleContext db, Logger logger)
+{
 
-Category category = new Category();
-Console.WriteLine("Enter the name of the caregory");
-category.CategoryName = Console.ReadLine();
-Console.WriteLine("Enter the description of the caregory");
-category.Description = Console.ReadLine();
-ValidationContext context = new ValidationContext(category, null,  null);
-List<ValidationResult> results = new List<ValidationResult>();
-var isValid = Validator.TryValidateObject(category, context, results, true);
- if (isValid)
+    Category category = new Category();
+    Console.WriteLine("Enter the name of the caregory");
+    category.CategoryName = Console.ReadLine();
+    Console.WriteLine("Enter the description of the caregory");
+    category.Description = Console.ReadLine();
+    ValidationContext context = new ValidationContext(category, null, null);
+    List<ValidationResult> results = new List<ValidationResult>();
+    var isValid = Validator.TryValidateObject(category, context, results, true);
+    if (isValid)
 
         // prevent duplicates
 
         if (db.Categories.Any(c => c.CategoryName == category.CategoryName))
         {
-            
+
             results.Add(new ValidationResult("Category name exists", new string[] { "Name" }));
         }
         else
@@ -399,4 +486,25 @@ var isValid = Validator.TryValidateObject(category, context, results, true);
 
     return null;
 
+}
+
+static Category getCategory(NWConsoleContext db, Logger logger)
+{
+
+    var categories = db.Categories.OrderBy(c => c.CategoryId);
+    foreach (Category c in categories)
+    {
+        Console.WriteLine($"[{c.CategoryId}] {c.CategoryName}");
+
+    }
+    if (int.TryParse(Console.ReadLine(), out int CategoryId))
+    {
+        Category category = db.Categories.FirstOrDefault(c => c.CategoryId == CategoryId);
+        if (category != null)
+        {
+            return category;
+        }
+    }
+    logger.Error($"{CategoryId} is an invalid category ID");
+    return null;
 }
