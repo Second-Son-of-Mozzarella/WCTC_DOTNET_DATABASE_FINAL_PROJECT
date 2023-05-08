@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 
+
 namespace EJS_DOTNET_M12_D1.Model
 {
     public partial class NWConsoleContext : DbContext
@@ -28,6 +29,20 @@ namespace EJS_DOTNET_M12_D1.Model
         public virtual DbSet<Shipper> Shippers { get; set; }
         public virtual DbSet<Supplier> Suppliers { get; set; }
         public virtual DbSet<Territory> Territories { get; set; }
+
+
+        public void AddCategory(Category category){
+            this.Categories.Add(category);
+            
+        }
+
+        public void AddProduct(Product product){
+            this.Products.Add(product);
+
+        }
+
+
+        public void SaveDatabase(){this.SaveChanges();}
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -289,3 +304,5 @@ namespace EJS_DOTNET_M12_D1.Model
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }
+
+

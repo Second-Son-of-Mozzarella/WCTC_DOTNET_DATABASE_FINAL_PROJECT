@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace EJS_DOTNET_M12_D1.Model
 {
@@ -11,6 +12,7 @@ namespace EJS_DOTNET_M12_D1.Model
         }
 
         public int CategoryId { get; set; }
+        [Required(ErrorMessage = "YO - Enter the name!")]        
         public string CategoryName { get; set; }
         public string Description { get; set; }
 
