@@ -173,12 +173,12 @@ try
                                 Console.ForegroundColor = ConsoleColor.White;
                                 foreach (Product p in item.Products)
                                 {
-                                    if(p.Discontinued == true)
+                                    if (p.Discontinued == true)
                                     {
                                         Console.WriteLine($"\t{p.ProductName} - Discontinued");
                                     }
-                                    else{Console.WriteLine($"\t{p.ProductName}");}
-                                    
+                                    else { Console.WriteLine($"\t{p.ProductName}"); }
+
                                 }
                                 Console.WriteLine();
 
@@ -293,6 +293,63 @@ try
                     break;
 
                 case 5: // add, delete or edit part of the products table
+                    Console.Clear();
+                    centeredText("How would you like to modify Categories");
+                    Console.WriteLine("\n\t [1] Add product \n\t [2] Delete product and related orders \n\t [3] Edit products");
+                    switch (Console.ReadLine())
+                    {
+                        case "1":
+                            Console.Clear();
+                            Product newProduct = validateInputProduct(db, logger);
+                            if (newProduct != null)
+                            {
+                                db.AddProduct(newProduct);
+                                logger.Info($"New product added ID: {newProduct.ProductId} Name: {newProduct.ProductName}");
+                            }
+
+                            break;
+
+
+                        case "2":
+                            Console.Clear();
+                            centeredText("Which product would you like to delete");
+                            Product deleteProduct = getProduct(db, logger);
+                            if (deleteProduct != null)
+                            {
+                                logger.Info($"product ID: {deleteProduct.ProductId} Name: {deleteProduct.ProductName} has been deleted");
+                                db.DeleteProduct(deleteProduct);
+                            }
+
+
+                            break;
+
+
+                        case "3":
+
+                            Console.WriteLine("Choose a product to edit");
+                            var EditProduct = getProduct(db, logger);
+                            if (EditProduct != null)
+                            {
+                                Product updatedProduct = validateInputProduct(db, logger);
+                                if (updatedProduct != null)
+                                {
+                                    updatedProduct.ProductId = EditProduct.ProductId;
+                                    db.EditProduct(updatedProduct);
+                                    logger.Info($"Category ID: {EditProduct.ProductId} has been updated");
+                                }
+                            }
+
+
+
+                            break;
+
+
+                        default:
+
+
+                            break;
+                    }
+
 
 
                     break;
@@ -417,4 +474,131 @@ static Category getCategory(NWConsoleContext db, Logger logger)
     }
     logger.Error($"{CategoryId} is an invalid category ID");
     return null;
+}
+
+static Product getProduct(NWConsoleContext db, Logger logger)
+{
+
+    var cat = db.Categories.Include("Products").OrderBy(p => p.CategoryId);
+    foreach (var item in cat)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine($"{item.CategoryName}");
+        Console.WriteLine($"-----------------------------------------------------------------------------------------------------------");
+        Console.ForegroundColor = ConsoleColor.White;
+        foreach (Product p in item.Products)
+        {
+
+            Console.WriteLine($"[{p.ProductId}] {p.ProductName}");
+        }
+        Console.WriteLine();
+
+    }
+    Console.WriteLine("Select which product you would like {Select via the [#] number}");
+    if (int.TryParse(Console.ReadLine(), out int ProductID))
+    {
+        Product product = db.Products.FirstOrDefault(p => p.ProductId == ProductID);
+        if (product != null)
+        {
+            logger.Info($"Product Succsessfully returned (product ID: {product.ProductId} Product Name: {product.ProductName})");
+            return product;
+
+        }
+        else
+        {
+            logger.Error($"{ProductID} product does not exist");
+        }
+    }
+
+    logger.Error($"{ProductID} is an invalid product ID");
+    return null;
+
+}
+
+static Product validateInputProduct(NWConsoleContext db, Logger logger)
+{
+
+    Product product = new Product();
+    Console.Clear();
+    Console.WriteLine("\n What is the name of the product \n ->");
+    product.ProductName = Console.ReadLine();
+    var MQP1 = db.Categories.OrderBy(p => p.CategoryId);
+    logger.Info($"{MQP1.Count()} records returned");
+    foreach (var item in MQP1)
+    {
+        Console.WriteLine($"[{item.CategoryId}] {item.CategoryName}");
+    }
+    Console.WriteLine($"Select which category it {product.ProductName} listed under (Select via the [#] number)");
+    try
+    {
+        product.CategoryId = Int32.Parse(Console.ReadLine());
+
+        Console.WriteLine($"Who is the supplier of the {product.ProductName} (Select via the [#] number)");
+        var MQP2 = db.Suppliers.OrderBy(s => s.SupplierId);
+        logger.Info($"{MQP2.Count()} records returned");
+        foreach (var item in MQP2)
+        {
+            Console.WriteLine($"[{item.SupplierId}] {item.CompanyName}");
+        }
+        try
+        {
+            product.SupplierId = Int32.Parse(Console.ReadLine());
+            product.Discontinued = false;
+            product.UnitsOnOrder = 0;
+            product.UnitsInStock = 0;
+            Console.WriteLine($"How much does {product.ProductName} cost per unit (Do not use $ or any other currency symbol)");
+            try
+            {
+                product.UnitPrice = Decimal.Parse(Console.ReadLine());
+                Console.WriteLine($"How much of {product.ProductName} is in one unit");
+                product.QuantityPerUnit = Console.ReadLine();
+
+                ValidationContext context = new ValidationContext(product, null, null);
+                List<ValidationResult> results = new List<ValidationResult>();
+
+                var isValid = Validator.TryValidateObject(product, context, results, true);
+
+                if (isValid)
+                {
+
+                    return product;
+
+                }
+                foreach (var result in results)
+                {
+                    logger.Error($"{result.MemberNames.First()} : {result.ErrorMessage}");
+                }
+
+
+            }
+            catch
+            {
+
+                logger.Error("Invalid product cost");
+
+            }
+
+
+        }
+        catch
+        {
+
+            logger.Error("Invalid product supplier ID");
+
+
+        }
+
+
+
+    }
+    catch
+    {
+
+        logger.Error("Invalid product Category ID");
+
+    }
+
+    return null;
+
+
 }
