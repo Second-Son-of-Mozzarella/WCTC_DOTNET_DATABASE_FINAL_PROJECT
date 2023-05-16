@@ -1,11 +1,12 @@
 ﻿using NLog;
-using System.Linq;
+using System.Linq; // I never used but is good to have for future expansion
 using EJS_DOTNET_M12_D1.Model;
-using System.Collections.Generic;
+using System.Collections.Generic;  // I never used but is good to have for future expansion
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
-// See https://aka.ms/new-console-template for more information
+
+// Nlog Directory
 string path = Directory.GetCurrentDirectory() + "\\nlog.config";
 
 // create instance of Logger
@@ -78,7 +79,10 @@ try
                             Console.WriteLine($"{category.CategoryName} - {category.Description}");
                             foreach (Product p in category.Products)
                             {
-                                Console.WriteLine($"\t{p.ProductName}");
+                                if (p.Discontinued == false)
+                                {
+                                    Console.WriteLine($"\t{p.ProductName}");
+                                }
                             }
 
                             keyToContinue();
@@ -146,12 +150,6 @@ try
                     }
 
 
-
-
-
-
-
-
                     break;
 
 
@@ -163,8 +161,12 @@ try
                     switch (Console.ReadLine())
                     {
                         case "1":
-
-                            bufferArea(200);
+                            logger.Info("Choice 1 Selected");
+                            // bufferArea(200);
+                            for (int i = 0; i == 500; i++)
+                            {
+                                Console.WriteLine("\n");
+                            }
                             foreach (var item in Q3A)
                             {
                                 Console.ForegroundColor = ConsoleColor.Red;
@@ -190,8 +192,12 @@ try
 
                         case "2":
 
-
-                            bufferArea(200);
+                            logger.Info("Choice 2 Selected");
+                            // bufferArea(200);
+                            for (int i = 0; i == 500; i++)
+                            {
+                                Console.WriteLine("\n");
+                            }
                             foreach (var item in Q3A)
                             {
                                 Console.ForegroundColor = ConsoleColor.Red;
@@ -210,8 +216,12 @@ try
                             break;
 
                         case "3":
-
-                            bufferArea(200);
+                            logger.Info("Choice 3 Selected");
+                            //bufferArea(200);
+                            for (int i = 0; i == 500; i++)
+                            {
+                                Console.WriteLine("\n");
+                            }
                             foreach (var item in Q3A)
                             {
                                 Console.ForegroundColor = ConsoleColor.Red;
@@ -220,7 +230,7 @@ try
                                 Console.ForegroundColor = ConsoleColor.White;
                                 foreach (Product p in item.Products.Where(p => p.Discontinued == true))
                                 {
-                                    Console.WriteLine($"\t{p.ProductName} \tDiscontinued {p.Discontinued}");
+                                    Console.WriteLine($"\t{p.ProductName} \t - Discontinued");
                                 }
                                 Console.WriteLine();
 
@@ -250,7 +260,11 @@ try
                     Console.Clear();
 
                     var Q4B1 = db.Categories.Include("Products").OrderBy(p => p.CategoryId);
-                    bufferArea(500);
+                    // bufferArea(500);
+                    for (int i = 0; i == 500; i++)
+                    {
+                        Console.WriteLine("\n");
+                    }
                     foreach (var item in Q4B1)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
@@ -299,6 +313,7 @@ try
                     switch (Console.ReadLine())
                     {
                         case "1":
+                            logger.Info("choice 1 selected \"Add product\"");
                             Console.Clear();
                             Product newProduct = validateInputProduct(db, logger);
                             if (newProduct != null)
@@ -311,6 +326,7 @@ try
 
 
                         case "2":
+                            logger.Info("choice 2 selected \"Delete product and related orders\"");
                             Console.Clear();
                             centeredText("Which product would you like to delete");
                             Product deleteProduct = getProduct(db, logger);
@@ -325,7 +341,7 @@ try
 
 
                         case "3":
-
+                            logger.Info("choice 3 selected \"Edit products\"");
                             Console.WriteLine("Choose a product to edit");
                             var EditProduct = getProduct(db, logger);
                             if (EditProduct != null)
@@ -346,6 +362,7 @@ try
 
                         default:
 
+                            logger.Info("not accepted input");
 
                             break;
                     }
@@ -371,7 +388,7 @@ try
         }
 
 
-
+    colourWhite();
 
     } while (choice.ToLower() != "0");
 }
@@ -400,10 +417,10 @@ void keyToContinue()
     Console.Clear();
 }
 
-void bufferArea(int bufferAmount)
+void bufferArea(int bufferAmount) // this method just suddenly decided to stop working I do not know why
 {
 
-    for (int i = 0; i > bufferAmount; i++)
+    for (int i = 0; i == bufferAmount; i++)
     {
         Console.WriteLine("\n");
     }
