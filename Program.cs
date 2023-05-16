@@ -120,9 +120,8 @@ try
                             var category = getCategory(db, logger);
                             if (category != null)
                             {
-
-                                db.DeleteCatagory(category);
                                 logger.Info($"Catagory ID: {category.CategoryId}  Name: {category.CategoryName} along with all related products has been deleted");
+                                db.DeleteCatagory(category);
 
 
                             }

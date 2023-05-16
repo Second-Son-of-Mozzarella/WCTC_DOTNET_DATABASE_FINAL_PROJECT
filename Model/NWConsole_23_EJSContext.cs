@@ -62,7 +62,7 @@ namespace EJS_DOTNET_M12_D1.Model
         }
 
         public void EditProduct(Product updatedProduct){
-            Product product = this.Products.Find(updatedProduct.CategoryId);
+            Product product = this.Products.Find(updatedProduct.ProductId);
             product.ProductName = updatedProduct.ProductName;
             product.QuantityPerUnit = updatedProduct.QuantityPerUnit;
             product.UnitPrice = updatedProduct.UnitPrice;
